@@ -1,0 +1,81 @@
+name: Angular Docker CI/CD
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build_and_deploy:
+    runs-on: [self-hosted, linux]
+
+
+    steps:
+    
+      - name: permission
+        run: |
+          sudo rm -f -r  /home/hm/actions-runner/_work/myui/myui/.angular/*
+          sudo rm -f -r  /home/hm/actions-runner/_work/myui/myui/dist/*
+          sudo rm -f -r  /home/hm/actions-runner/_work/myui/myui/node_modules/*
+          sudo rm -f -r  /home/hm/actions-runner/_work/myui/myui/node_modules/.*
+      
+      
+      # Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Clean npm cache, remove node_modules, and reinstall dependencies
+      - name: Clean npm cache
+        run: |
+          sudo npm cache clean --force
+          
+      - name: Remove node_modules
+        run: sudo rm -rf node_modules/
+
+      - name: Delete package-lock.json
+        run: sudo rm -f package-lock.json
+      
+      - name: Install dependencies
+        run: sudo npm install --legacy-peer-deps
+
+      # Build Angular project
+      - name: Build Angular Project
+        run: sudo npx ng build --output-path=dist --configuration production
+
+      # Build Docker Image
+      - name: Build Docker image
+        run: sudo docker build . --file Dockerfile --tag angular-app:$(date +%s)
+
+      # Run Docker container
+
+      - name: Remove existing container
+        run: |
+          if sudo docker ps -a --format '{{.Names}}' | grep -q '^angular-nginx-container2$'; then
+          sudo docker rm -f angular-nginx-container2
+          fi
+
+    
+      - name: Run Docker container
+ 
+        run: |
+          sudo docker run --name angular-nginx-container2 -d \
+          -v ${{ github.workspace }}/dist:/usr/share/nginx/html:ro \
+          -v /home/hm/nginx.conf:/etc/nginx/conf.d/default.conf:ro \
+          -p 80:80 \
+          nginx:latest
+
+      # Test Docker Container
+      - name: Test Docker Container
+        run: |
+          if sudo docker ps | grep -q "angular-nginx-container2"; then
+            echo "Docker container is running successfully."
+          else
+            echo "Docker container deployment failed." && exit 1
+          fi

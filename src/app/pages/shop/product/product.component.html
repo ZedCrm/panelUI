@@ -1,0 +1,124 @@
+<div class="pagetitle">
+  <h1>Data Tables</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+      <li class="breadcrumb-item">Tables</li>
+      <li class="breadcrumb-item active">Data</li>
+    </ol>
+  </nav>
+</div>
+
+<section class="section">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">محصولات</h5>
+
+          <!-- لودینگ -->
+          <div *ngIf="isLoading" class="loading-message">
+            در حال بارگذاری...
+          </div>
+
+          <!-- جدول محصولات -->
+          <div *ngIf="!isLoading && products.length > 0">
+            <table class="table datatable">
+              <thead>
+                <tr>
+                  <th *ngFor="let field of metadata" (click)="changeSort(field.name)" class="sortable-column">
+                    {{ field.displayName || field.name }} <!-- نمایش displayName یا نام فیلد -->
+                    <span *ngIf="fieldToSort === field.name">
+                      {{ sortDesc ? '▼' : '▲' }}
+                    </span>
+                  </th>
+                  <th>انتخاب</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let product of products; let i = index">
+                  <td *ngFor="let field of metadata">
+                    {{ product[field.name.toLocaleLowerCase()] }}
+                  </td>
+                  <td>
+                    <input type="checkbox" (change)="toggleSelection(product.id, $event)" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Pagination with icons -->
+            <nav aria-label="Page navigation example">
+              <ul class="pagination">
+                <li class="page-item" *ngIf="pageNumber != 1">
+                  <button class="page-link" aria-label="Previous" (click)="ChangePage(pageNumber - 1)">
+                    <span aria-hidden="true">&laquo;</span>
+                  </button>
+                </li>
+
+                <li class="page-item"><a class="page-link" href="#">{{ pageNumber }}</a></li>
+
+                <li class="page-item">
+                  <button class="page-link" aria-label="Next" (click)="ChangePage(pageNumber + 1)">
+                    <span aria-hidden="true">&raquo;</span>
+                  </button>
+                </li>
+
+                <div class="col-sm-1 ms-auto text-end">
+                  <select class="form-select" (change)="ChangePageSize($event)" [value]="pageSize">
+                    <option *ngFor="let size of [2, 4, 5, 8]" [value]="size">{{ size }}</option>
+                  </select>
+                </div>
+
+                <li class="ms-auto">
+                  <!-- تعداد کل : {{ metadata.totalRecords }} | تعداد کل صفحات : {{ metadata.totalPages }} -->
+                </li>
+              </ul>
+            </nav>
+          </div>
+
+          <!-- پیام زمانی که هیچ محصولی موجود نیست -->
+          <div *ngIf="!isLoading && products.length === 0">
+            هیچ محصولی یافت نشد.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- دکمه‌های عملیات -->
+<button type="button" class="btn btn-danger" (click)="deleteSelectedProducts()">حذف انتخاب‌شده‌ها</button>
+<button type="button" class="btn btn-primary" (click)="openPopup()">اضافه کردن محصول</button>
+
+<!-- Modal -->
+<div class="modal" [ngClass]="{ 'show': isPopupVisible }" tabindex="-1" [style.display]="isPopupVisible ? 'block' : 'none'">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">اضافه کردن محصول</h5>
+        <button type="button" class="close" (click)="closePopup()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form *ngIf="productForm" [formGroup]="productForm">
+          <div class="form-group" *ngFor="let field of metadata">
+            <label [for]="field.name">{{ field.displayName || field.name }}</label>
+            <input
+              [formControlName]="field.name"
+              [type]="getInputType(field.type)"
+              class="form-control"
+              [id]="field.name"
+              [required]="field.required"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closePopup()">انصراف</button>
+        <button type="button" class="btn btn-primary" (click)="saveProduct()">ذخیره</button>
+      </div>
+    </div>
+  </div>
+</div>

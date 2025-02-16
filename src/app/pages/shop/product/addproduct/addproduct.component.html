@@ -1,0 +1,16 @@
+<div class="popup-overlay" *ngIf="isVisible" (click)="close()">
+    <div class="popup-form" (click)="$event.stopPropagation()">
+      <h2>اضافه کردن محصول</h2>
+      <form (ngSubmit)="onSubmit()">
+        <label for="productName">نام محصول:</label>
+        <input id="productName" [(ngModel)]="productName" name="productName" required />
+  
+        <label for="productPrice">قیمت محصول:</label>
+        <input id="productPrice" [(ngModel)]="productPrice" name="productPrice" required />
+  
+        <button type="submit">ثبت</button>
+        <button type="button" (click)="close()">بستن</button>
+      </form>
+    </div>
+  </div>
+  
