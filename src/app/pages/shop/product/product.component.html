@@ -26,7 +26,7 @@
             <table class="table datatable">
               <thead>
                 <tr>
-                  <th *ngFor="let field of metadata" (click)="changeSort(field.name)" class="sortable-column">
+                  <th *ngFor="let field of tableMetadata" (click)="changeSort(field.name)" class="sortable-column">
                     {{ field.displayName || field.name }} <!-- نمایش displayName یا نام فیلد -->
                     <span *ngIf="fieldToSort === field.name">
                       {{ sortDesc ? '▼' : '▲' }}
@@ -37,7 +37,7 @@
               </thead>
               <tbody>
                 <tr *ngFor="let product of products; let i = index">
-                  <td *ngFor="let field of metadata">
+                  <td *ngFor="let field of tableMetadata">
                     {{ product[field.name.toLocaleLowerCase()] }}
                   </td>
                   <td>
@@ -103,11 +103,11 @@
       </div>
       <div class="modal-body">
         <form *ngIf="productForm" [formGroup]="productForm">
-          <div class="form-group" *ngFor="let field of metadata">
+          <div class="form-group" *ngFor="let field of formMetadata">
             <label [for]="field.name">{{ field.displayName || field.name }}</label>
             <input
               [formControlName]="field.name"
-              [type]="getInputType(field.type)"
+              [type]="field.type"
               class="form-control"
               [id]="field.name"
               [required]="field.required"

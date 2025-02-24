@@ -15,7 +15,7 @@ export class ProductService {
 
   /** دریافت متادیتا برای مدل */
   getModelMetadata(modelName: string): Observable<MetadataField[]> {
-    return this.http.get<{ [key: string]: MetadataField[] }>(`${this.apiUrl}/api/GetModelMetadata/${modelName}`).pipe(
+    return this.http.get<{ [key: string]: MetadataField[] }>(`${this.apiUrl}/api/Metadata/GetModelMetadata/${modelName}`).pipe(
       map(response => response[modelName] || [])
     );
   }
@@ -40,6 +40,7 @@ export class ProductService {
     const headers = new HttpHeaders({
       'accept': 'application/json',
       'Content-Type': 'application/json'
+      
     });
     return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/create`, productData, { headers });
   }
@@ -50,11 +51,5 @@ export class ProductService {
     return this.http.delete<baseResponse<any>>(`${this.apiUrl}/api/delete?id=${id}`, { headers });
   }
 
-  /** تبدیل کلیدهای آبجکت به حروف کوچک */
-  private convertKeysToLowerCase(obj: any): any {
-    return Object.keys(obj).reduce((acc, key) => {
-      acc[key.toLowerCase()] = obj[key];
-      return acc;
-    }, {} as any);
-  }
+
 }

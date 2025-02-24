@@ -18,7 +18,8 @@ export class ProductComponent implements OnInit {
   sortDesc: boolean = true;
   products: any[] = [];
   selectedProductIds: number[] = [];
-  metadata: MetadataField[] = []; 
+  formMetadata: MetadataField[] = []; 
+  tableMetadata: MetadataField[] = [];
   productForm: FormGroup = new FormGroup({});
   isLoading: boolean = true;
   isPopupVisible: boolean = false;
@@ -26,18 +27,35 @@ export class ProductComponent implements OnInit {
   constructor(private productService: ProductService) {}
 
   ngOnInit(): void {
-    this.loadMetadataAndForm('ProductView');
+    this.loadFormMetadata('ProductCreate');
+    this.loadTableMetadata('ProductView');
     this.loadProducts();
   }
 
-  /** دریافت متادیتا و سپس ایجاد فرم */
-  loadMetadataAndForm(modelName: string): void {
+
+
+
+  /** دریافت متادیتای فرم */
+  loadFormMetadata(modelName: string): void {
     this.productService.getModelMetadata(modelName).subscribe({
       next: (metadata) => {
-        this.metadata = metadata; 
-        console.log('Metadata loaded:', this.metadata);
+        this.formMetadata = metadata; 
+        console.log('Form Metadata loaded:', this.formMetadata);
       },
-      error: (err) => console.error('Error loading metadata:', err),
+      error: (err) => console.error('Error loading form metadata:', err),
+    });
+  }
+
+
+  
+  /** دریافت متادیتای جدول */
+  loadTableMetadata(modelName: string): void {
+    this.productService.getModelMetadata(modelName).subscribe({
+      next: (metadata) => {
+        this.tableMetadata = metadata; 
+        console.log('Table Metadata loaded:', this.tableMetadata);
+      },
+      error: (err) => console.error('Error loading table metadata:', err),
     });
   }
 
