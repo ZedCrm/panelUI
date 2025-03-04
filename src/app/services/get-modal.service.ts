@@ -10,6 +10,7 @@ export interface MetadataField {
   maxLength?: number;
   minLength?: number;
   displayName?: string;
+  label?: string; 
 }
 
 @Injectable({

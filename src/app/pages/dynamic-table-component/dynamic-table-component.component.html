@@ -1,0 +1,63 @@
+<div class="pagetitle">
+    <h1>{{ modelName }}</h1>
+  </div>
+  
+  <!-- لودینگ -->
+  <div *ngIf="isLoading" class="loading-message">در حال بارگذاری...</div>
+  
+  <!-- جدول داده‌ها -->
+  <div *ngIf="!isLoading && records.length > 0">
+    <table class="table datatable">
+      <thead>
+        <tr>
+          <th *ngFor="let field of tableMetadata" (click)="changeSort(field.name)" class="sortable-column">
+            {{ field.displayName || field.name }}
+            <span *ngIf="fieldToSort === field.name">{{ sortDesc ? '▼' : '▲' }}</span>
+          </th>
+          <th>انتخاب</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of records">
+          <td *ngFor="let field of tableMetadata">{{ record[field.name.toLowerCase()] }}</td>
+          <td>
+            <input type="checkbox" (change)="toggleSelection(record.id, $event)" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- پیام زمانی که هیچ داده‌ای موجود نیست -->
+  <div *ngIf="!isLoading && records.length === 0">هیچ داده‌ای یافت نشد.</div>
+  
+  <!-- دکمه‌های عملیات -->
+  <button type="button" class="btn btn-danger" (click)="deleteSelectedRecords()">حذف انتخاب‌شده‌ها</button>
+  <button type="button" class="btn btn-primary" (click)="openPopup()">افزودن</button>
+  
+  <!-- پاپ‌آپ برای افزودن -->
+  <div class="modal" [ngClass]="{ 'show': isPopupVisible }" tabindex="-1" [style.display]="isPopupVisible ? 'block' : 'none'">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">افزودن {{ modelName }}</h5>
+          <button type="button" class="close" (click)="closePopup()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="dataForm">
+            <div *ngFor="let field of formMetadata">
+              <label [for]="field.name">{{ field.displayName || field.name }}</label>
+              <input [formControlName]="field.name" [type]="field.type" class="form-control" />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closePopup()">انصراف</button>
+          <button class="btn btn-primary" (click)="saveRecord()">ذخیره</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
