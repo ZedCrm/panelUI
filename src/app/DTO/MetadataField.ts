@@ -4,7 +4,9 @@ export interface MetadataField {
     required: boolean;   // آیا فیلد اجباری است؟
     label?: string;        // لیبل نمایشی
     options?: any[];     // گزینه‌ها (برای dropdown یا select)
-    displayName : string ;
-    
+    displayName? : string ;  
+    maxLength?: number;
+    minLength?: number;
+
   }
   
