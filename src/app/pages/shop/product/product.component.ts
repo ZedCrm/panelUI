@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../../services/shop/product.service';
 import { CommonModule } from '@angular/common';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MetadataField } from '../../../DTO/MetadataField';
 
 @Component({
@@ -34,18 +34,49 @@ export class ProductComponent implements OnInit {
 
 
 
+  getInputType(fieldType: string): string {
+    switch (fieldType.toLowerCase()) {
+      case 'number':
+      case 'int':
+      case 'float':
+        return 'number';
+      case 'email':
+        return 'email';
+      case 'password':
+        return 'password';
+      default:
+        return 'text';
+    }
+  }
+
+  initializeProductForm(): void {
+    const controls: { [key: string]: any } = {};
+  
+    this.formMetadata.forEach(field => {
+      const validators = [];
+      if (field.required) validators.push(Validators.required);
+      if (field.maxLength) validators.push(Validators.maxLength(field.maxLength));
+      if (field.minLength) validators.push(Validators.minLength(field.minLength));
+  
+      controls[field.name] = new FormControl('', validators);
+    });
+  
+    this.productForm = new FormGroup(controls);
+  }
+
 
   /** دریافت متادیتای فرم */
   loadFormMetadata(modelName: string): void {
     this.productService.getModelMetadata(modelName).subscribe({
       next: (metadata) => {
-        this.formMetadata = metadata; 
+        this.formMetadata = metadata;
+        this.initializeProductForm(); // ⚠️ این خط جدید اضافه شد
         console.log('Form Metadata loaded:', this.formMetadata);
       },
       error: (err) => console.error('Error loading form metadata:', err),
     });
   }
-
+  
 
   
   /** دریافت متادیتای جدول */

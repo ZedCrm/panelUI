@@ -17,7 +17,7 @@ export class DynamicTableComponent implements OnInit {
   dataService: any; 
 
   pageNumber: number = 1;
-  pageSize: number = 5;
+  pageSize: number = 2;
   fieldToSort: string = 'Id';
   sortDesc: boolean = true;
   records: any[] = [];

@@ -103,21 +103,26 @@
       </div>
       <div class="modal-body">
         <form *ngIf="productForm" [formGroup]="productForm">
-          <div class="form-group" *ngFor="let field of formMetadata">
-            <label [for]="field.name">{{ field.displayName || field.name }}</label>
+          <div class="form-group mb-3" *ngFor="let field of formMetadata">
+            <label [for]="field.name" class="form-label">{{ field.displayName || field.name }}</label>
             <input
+              [type]="getInputType(field.type)"
               [formControlName]="field.name"
-              [type]="field.type"
               class="form-control"
               [id]="field.name"
               [required]="field.required"
             />
+            
+            <div class="text-danger" *ngIf="productForm.controls[field.name]?.invalid && productForm.controls[field.name]?.touched">
+              فیلد {{ field.displayName || field.name }} الزامی است.
+            </div>
           </div>
         </form>
       </div>
+      
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closePopup()">انصراف</button>
-        <button type="button" class="btn btn-primary" (click)="saveProduct()">ذخیره</button>
+        <button type="button" class="btn btn-secondary" (click)="closePopup()">بستن</button>
+        <button type="button" class="btn btn-success" (click)="saveProduct()" [disabled]="!productForm.valid">ذخیره</button>
       </div>
     </div>
   </div>

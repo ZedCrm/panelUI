@@ -17,7 +17,7 @@ export interface MetadataField {
   providedIn: 'root',
 })
 export class GetModalService {
-  private apiUrl = 'http://141.11.37.220:90/api/Metadata/GetModelMetadata';
+  private apiUrl = 'http://localhost:90/api/Metadata/GetModelMetadata';
 
   constructor(private http: HttpClient, private fb: FormBuilder) {}
 
