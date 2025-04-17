@@ -4,13 +4,11 @@ import { DynamicTableComponent } from './pages/dynamic-table-component/dynamic-t
 import { ProductService } from './services/shop/product.service';
 
 export const routes: Routes = [
-
-    {path:'product',component:ProductComponent},
-    {
-        path: 'dynamic-table',
-        component: DynamicTableComponent,
-        data: { modelName: 'Product', dataService: ProductService }, 
-        providers: [ProductService],
-      }
-    
+  { path: 'product', component: ProductComponent },
+  {
+    path: 'dynamic-table',
+    component: DynamicTableComponent,
+    data: { modelName: 'Product', dataService: ProductService },
+    providers: [ProductService],
+  },
 ];

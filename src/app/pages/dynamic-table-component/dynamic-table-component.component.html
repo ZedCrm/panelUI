@@ -1,63 +1,76 @@
 <div class="pagetitle">
-    <h1>{{ modelName }}</h1>
-  </div>
-  
-  <!-- لودینگ -->
-  <div *ngIf="isLoading" class="loading-message">در حال بارگذاری...</div>
-  
-  <!-- جدول داده‌ها -->
-  <div *ngIf="!isLoading && records.length > 0">
-    <table class="table datatable">
-      <thead>
-        <tr>
-          <th *ngFor="let field of tableMetadata" (click)="changeSort(field.name)" class="sortable-column">
-            {{ field.displayName || field.name }}
-            <span *ngIf="fieldToSort === field.name">{{ sortDesc ? '▼' : '▲' }}</span>
-          </th>
-          <th>انتخاب</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let record of records">
-          <td *ngFor="let field of tableMetadata">{{ record[field.name.toLowerCase()] }}</td>
-          <td>
-            <input type="checkbox" (change)="toggleSelection(record.id, $event)" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-  <!-- پیام زمانی که هیچ داده‌ای موجود نیست -->
-  <div *ngIf="!isLoading && records.length === 0">هیچ داده‌ای یافت نشد.</div>
-  
-  <!-- دکمه‌های عملیات -->
-  <button type="button" class="btn btn-danger" (click)="deleteSelectedRecords()">حذف انتخاب‌شده‌ها</button>
-  <button type="button" class="btn btn-primary" (click)="openPopup()">افزودن</button>
-  
-  <!-- پاپ‌آپ برای افزودن -->
-  <div class="modal" [ngClass]="{ 'show': isPopupVisible }" tabindex="-1" [style.display]="isPopupVisible ? 'block' : 'none'">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">افزودن {{ modelName }}</h5>
-          <button type="button" class="close" (click)="closePopup()" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="dataForm">
-            <div *ngFor="let field of formMetadata">
-              <label [for]="field.name">{{ field.displayName || field.name }}</label>
-              <input [formControlName]="field.name" [type]="field.type" class="form-control" />
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="closePopup()">انصراف</button>
-          <button class="btn btn-primary" (click)="saveRecord()">ذخیره</button>
-        </div>
+  <h1>مدیریت {{ modelName }}</h1>
+</div>
+
+<!-- لودینگ -->
+<div *ngIf="isLoading" class="loading-message text-center">⏳ در حال بارگذاری...</div>
+
+<!-- جدول داده‌ها -->
+<div *ngIf="!isLoading && records.length > 0">
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th *ngFor="let field of tableMetadata" (click)="changeSort(field.name)" class="sortable-column">
+          {{ field.displayName || field.name }}
+          <span *ngIf="fieldToSort === field.name">{{ sortDesc ? '▼' : '▲' }}</span>
+        </th>
+        <th>انتخاب</th>
+        <th>عملیات</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let record of records">
+        <td *ngFor="let field of tableMetadata">{{ record[field.name.toLowerCase()] }}</td>
+        <td>
+          <input type="checkbox" (change)="toggleSelection(record.id, $event)" />
+        </td>
+        <td>
+         <!-- <button class="btn btn-sm btn-warning" (click)="editRecord(record)">ویرایش</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteRecord(record.id)">❌</button>-->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- پیام وقتی داده‌ای نیست -->
+<div *ngIf="!isLoading && records.length === 0" class="alert alert-info text-center">
+  ❕ هیچ داده‌ای یافت نشد.
+</div>
+
+<!-- دکمه‌های عملیات -->
+<div class="d-flex justify-content-between mt-3">
+  <button class="btn btn-danger" (click)="deleteSelectedRecords()" [disabled]="selectedIds.length === 0">🗑 حذف انتخاب‌شده‌ها</button>
+  <button class="btn btn-primary" (click)="openPopup()">➕ افزودن رکورد</button>
+</div>
+
+<!-- صفحه‌بندی -->
+<div *ngIf="totalPages > 1" class="pagination-container text-center mt-3">
+  <button class="btn btn-light" (click)="changePage(pageNumber - 1)" [disabled]="pageNumber === 1">  قبلی ➡ </button>
+  <span class="mx-3">صفحه {{ pageNumber }} از {{ totalPages }}</span>
+  <button class="btn btn-light" (click)="changePage(pageNumber + 1)" [disabled]="pageNumber === totalPages"> ⬅ بعدی </button>
+</div>
+
+<!-- پاپ‌آپ افزودن رکورد -->
+<div class="modal fade show" [ngClass]="{ 'd-block': isPopupVisible }" tabindex="-1" *ngIf="isPopupVisible">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">➕ افزودن {{ modelName }}</h5>
+        <button type="button" class="close" (click)="closePopup()">✖</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="dataForm">
+          <div class="mb-3" *ngFor="let field of formMetadata">
+            <label [for]="field.name" class="form-label">{{ field.displayName || field.name }}</label>
+            <input [formControlName]="field.name" [type]="field.type || 'text'" class="form-control" />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closePopup()">❌ انصراف</button>
+        <button class="btn btn-success" (click)="saveRecord()">✅ ذخیره</button>
       </div>
     </div>
   </div>
-  
+</div>

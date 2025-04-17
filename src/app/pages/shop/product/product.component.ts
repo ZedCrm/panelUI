@@ -93,7 +93,7 @@ export class ProductComponent implements OnInit {
   /** دریافت لیست محصولات */
   loadProducts(): void {
     this.isLoading = true;
-    this.productService.getProducts(this.pageNumber, this.pageSize, this.fieldToSort, this.sortDesc).subscribe({
+    this.productService.getRecords(this.pageNumber, this.pageSize, this.fieldToSort, this.sortDesc).subscribe({
       next: (response) => {
         if (response.isSucceeded) {
           this.products = response.data || [];
@@ -111,7 +111,7 @@ export class ProductComponent implements OnInit {
   saveProduct(): void {
     if (this.productForm.valid) {
       const newProduct = this.productForm.value;
-      this.productService.insertProduct(newProduct).subscribe({
+      this.productService.insertRecord(newProduct).subscribe({
         next: (response) => {
           console.log('Product added successfully:', response.data);
           this.products.push(newProduct);
@@ -164,7 +164,7 @@ export class ProductComponent implements OnInit {
       return;
     }
     this.selectedProductIds.forEach(id => {
-      this.productService.deleteProduct(id).subscribe({
+      this.productService.deleteRecord(id).subscribe({
         next: () => this.loadProducts(),
         error: (err) => console.error('خطا در حذف محصول:', err),
       });

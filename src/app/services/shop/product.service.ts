@@ -24,7 +24,7 @@ export class ProductService {
 
 
   /** دریافت لیست داده‌ها */
-  getProducts(pageNumber: number, pageSize: number, sortBy: string, sortDirection: boolean): Observable<baseResponse<any>> {
+  getRecords(pageNumber: number, pageSize: number, sortBy: string, sortDirection: boolean): Observable<baseResponse<any>> {
     const requestPayload = { pageNumber, pageSize, sortBy, sortDirection };
     const headers = new HttpHeaders({
       'accept': 'application/json',
@@ -36,7 +36,7 @@ export class ProductService {
   }
 
   /** افزودن محصول */
-  insertProduct(productData: any): Observable<baseResponse<any>> {
+  insertRecord(productData: any): Observable<baseResponse<any>> {
     const headers = new HttpHeaders({
       'accept': 'application/json',
       'Content-Type': 'application/json'
@@ -46,7 +46,7 @@ export class ProductService {
   }
 
   /** حذف محصول */
-  deleteProduct(id: number): Observable<baseResponse<any>> {
+  deleteRecord(id: number): Observable<baseResponse<any>> {
     const headers = new HttpHeaders({ 'accept': '*/*' });
     return this.http.delete<baseResponse<any>>(`${this.apiUrl}/api/delete?id=${id}`, { headers });
   }
