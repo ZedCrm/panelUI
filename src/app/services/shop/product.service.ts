@@ -31,7 +31,7 @@ export class ProductService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/GetAll`, requestPayload, { headers })
+    return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/product/GetAll`, requestPayload, { headers })
       ;
   }
 
@@ -42,14 +42,40 @@ export class ProductService {
       'Content-Type': 'application/json'
       
     });
-    return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/create`, productData, { headers });
+    return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/product/create`, productData, { headers });
   }
 
   /** حذف محصول */
-  deleteRecord(id: number): Observable<baseResponse<any>> {
-    const headers = new HttpHeaders({ 'accept': '*/*' });
-    return this.http.delete<baseResponse<any>>(`${this.apiUrl}/api/delete?id=${id}`, { headers });
+  deleteRecords(ids: number[]): Observable<baseResponse<any>> {
+    const headers = new HttpHeaders({
+      'accept': 'application/json',
+      'Content-Type': 'application/json'
+    });
+    return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/product/delete`, ids, { headers });
   }
 
+  /** ویرایش محصول */
+  updateRecord(productData: any): Observable<baseResponse<any>> {
+    const headers = new HttpHeaders({
+      'accept': 'application/json',
+      'Content-Type': 'application/json'
+    });
+    return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/product/update`, productData, { headers });
+  }
+  /** دریافت محصول بر اساس شناسه */
+  getRecordById(id: number): Observable<baseResponse<any>> {
+    const headers = new HttpHeaders({
+      'accept': 'application/json',
+      'Content-Type': 'application/json'
+    });
+    return this.http.get<baseResponse<any>>(`${this.apiUrl}/api/product/getById/?id=${id}`, { headers });
+  }
+
+
+  getSelectOptions(serviceName: string): Observable<any[]> {
+    return this.http.get<any>(`${serviceName}`).pipe(
+      map(response => Array.isArray(response) ? response : [])
+    );
+  }
 
 }

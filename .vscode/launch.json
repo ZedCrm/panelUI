@@ -7,7 +7,7 @@
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: start",
-      "url": "http://193.151.137.56:4200/"
+      "url": "http://localhost:4200/"
     }
   ]
 }

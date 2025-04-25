@@ -1,3 +1,9 @@
+<app-toast-message
+  *ngIf="toastMessage"
+  [message]="toastMessage"
+  [type]="toastType">
+</app-toast-message>
+
 <div class="pagetitle">
   <h1>مدیریت {{ modelName }}</h1>
 </div>
@@ -25,8 +31,8 @@
           <input type="checkbox" (change)="toggleSelection(record.id, $event)" />
         </td>
         <td>
-         <!-- <button class="btn btn-sm btn-warning" (click)="editRecord(record)">ویرایش</button>
-          <button class="btn btn-sm btn-danger" (click)="deleteRecord(record.id)">❌</button>-->
+         <button class="btn btn-sm btn-warning" (click)="getRecordById(record.id)">ویرایش</button>
+          
         </td>
       </tr>
     </tbody>
@@ -40,7 +46,7 @@
 
 <!-- دکمه‌های عملیات -->
 <div class="d-flex justify-content-between mt-3">
-  <button class="btn btn-danger" (click)="deleteSelectedRecords()" [disabled]="selectedIds.length === 0">🗑 حذف انتخاب‌شده‌ها</button>
+  <button class="btn btn-danger" (click)="deleteSelectedRecords(selectedIds)" [disabled]="selectedIds.length === 0">🗑 حذف انتخاب‌شده‌ها</button>
   <button class="btn btn-primary" (click)="openPopup()">➕ افزودن رکورد</button>
 </div>
 
@@ -62,15 +68,29 @@
       <div class="modal-body">
         <form [formGroup]="dataForm">
           <div class="mb-3" *ngFor="let field of formMetadata">
-            <label [for]="field.name" class="form-label">{{ field.displayName || field.name }}</label>
-            <input [formControlName]="field.name" [type]="field.type || 'text'" class="form-control" />
+            <label class="form-label">{{ field.displayName }}</label>
+          
+            <select *ngIf="field.controlType === 'select'" class="form-control" [formControlName]="field.name">
+              <option value="">-- انتخاب کنید --</option>
+              <option *ngFor="let option of selectOptions[field.name]" [value]="option.id">{{ option.name }}</option>
+            </select>
+          
+            <input *ngIf="!field.controlType && field.inputType === 'number'" type="number" class="form-control" [formControlName]="field.name" />
+          
+            <input *ngIf="!field.controlType && field.inputType === 'boolean'" type="checkbox" [formControlName]="field.name" />
+          
+            <input *ngIf="!field.controlType && field.inputType === 'text'" type="text" class="form-control" [formControlName]="field.name" 
+                   [attr.minlength]="field.minLength" [attr.maxlength]="field.maxLength" [required]="field.required ?? false" />
           </div>
         </form>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" (click)="closePopup()">❌ انصراف</button>
-        <button class="btn btn-success" (click)="saveRecord()">✅ ذخیره</button>
+        <button class="btn btn-success" (click)="saveRecord()">
+        {{ editId !== null ? '✅ ویرایش' : '✅ ذخیره' }}
+      </button>
       </div>
     </div>
   </div>
+ 
 </div>

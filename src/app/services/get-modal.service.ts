@@ -6,15 +6,22 @@ import { Observable, catchError, map } from 'rxjs';
 export interface MetadataField {
   name: string;
   type: string;
-  required: boolean;
-  maxLength?: number;
+  label?: string;
+  controlType?: string; // این خط باید اضافه بشه
+  selectSource?: string; // برای فیلدهای select
+  required?: boolean;
   minLength?: number;
-  displayName?: string;
-  label?: string; 
+  inputType: 'text' | 'number' | 'boolean';
+  maxLength?: number;
+  options?: any[];     
+  displayName? : string ;  
+  // هر چیز دیگه‌ای که لازمه...
 }
 
 @Injectable({
   providedIn: 'root',
+ 
+  
 })
 export class GetModalService {
   private apiUrl = '/api/Metadata/GetModelMetadata';

@@ -21,7 +21,7 @@ export class CountTypeService {
         'Content-Type': 'application/json'
       });
   
-      return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/CounType/GetAll`, requestPayload, { headers })
+      return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/CountType/GetAll`, requestPayload, { headers })
         ;
     }
 
@@ -32,14 +32,34 @@ export class CountTypeService {
       'Content-Type': 'application/json'
       
     });
-    return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/CounType/create`, productData, { headers });
+    return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/CountType/create`, productData, { headers });
   }
 
 
   /** حذف  */
-  deleteRecord(id: number): Observable<baseResponse<any>> {
-    const headers = new HttpHeaders({ 'accept': '*/*' });
-    return this.http.delete<baseResponse<any>>(`${this.apiUrl}/api/CounType/delete?id=${id}`, { headers });
+  deleteRecords(ids: number[]): Observable<baseResponse<any>> {
+    const headers = new HttpHeaders({
+      'accept': 'application/json',
+      'Content-Type': 'application/json'
+    });
+    return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/CountType/delete`, ids, { headers });
+  }
+  
+  /** ویرایش  */
+  updateRecord(productData: any): Observable<baseResponse<any>> {
+    const headers = new HttpHeaders({
+      'accept': 'application/json',
+      'Content-Type': 'application/json'
+    });
+    return this.http.post<baseResponse<any>>(`${this.apiUrl}/api/CountType/update`, productData, { headers });
+  }
+  /**get by id */
+  getRecordById(id: number): Observable<baseResponse<any>> {
+    const headers = new HttpHeaders({
+      'accept': 'application/json',
+      'Content-Type': 'application/json'
+    });
+    return this.http.get<baseResponse<any>>(`${this.apiUrl}/api/CountType/getById/?id=${id}`, { headers });
   }
 
 
