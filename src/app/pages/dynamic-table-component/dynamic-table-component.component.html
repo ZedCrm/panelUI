@@ -4,12 +4,14 @@
   [type]="toastType">
 </app-toast-message>
 
-<div class="pagetitle">
+<div class="pagetitle mb-3">
   <h1>مدیریت {{ modelName }}</h1>
 </div>
 
 <!-- لودینگ -->
-<div *ngIf="isLoading" class="loading-message text-center">⏳ در حال بارگذاری...</div>
+<div *ngIf="isLoading" class="loading-message text-center">
+  ⏳ در حال بارگذاری...
+</div>
 
 <!-- جدول داده‌ها -->
 <div *ngIf="!isLoading && records.length > 0">
@@ -26,13 +28,14 @@
     </thead>
     <tbody>
       <tr *ngFor="let record of records">
-        <td *ngFor="let field of tableMetadata">{{ record[field.name.toLowerCase()] }}</td>
-        <td>
+        <td *ngFor="let field of tableMetadata">
+          {{ record[field.name.toLowerCase()] }}
+        </td>
+        <td class="text-center">
           <input type="checkbox" (change)="toggleSelection(record.id, $event)" />
         </td>
         <td>
-         <button class="btn btn-sm btn-warning" (click)="getRecordById(record.id)">ویرایش</button>
-          
+          <button class="btn btn-sm btn-warning me-1" (click)="getRecordById(record.id)">✏ ویرایش</button>
         </td>
       </tr>
     </tbody>
@@ -45,62 +48,89 @@
 </div>
 
 <!-- دکمه‌های عملیات -->
-<div class="d-flex justify-content-between mt-3">
-  <button class="btn btn-danger" (click)="deleteSelectedRecords(selectedIds)" [disabled]="selectedIds.length === 0">🗑 حذف انتخاب‌شده‌ها</button>
-  <button class="btn btn-primary" (click)="openPopup()">➕ افزودن رکورد</button>
+<div class="d-flex justify-content-between align-items-center mt-3">
+  <button class="btn btn-danger" (click)="deleteSelectedRecords(selectedIds)" [disabled]="selectedIds.length === 0">
+    🗑 حذف انتخاب‌شده‌ها
+  </button>
+  <button class="btn btn-primary" (click)="openPopup()">
+    ➕ افزودن رکورد
+  </button>
 </div>
 
 <!-- صفحه‌بندی -->
 <div *ngIf="totalPages > 1" class="pagination-container text-center mt-3">
-  <button class="btn btn-light" (click)="changePage(pageNumber - 1)" [disabled]="pageNumber === 1">  قبلی ➡ </button>
+  <button class="btn btn-light" (click)="changePage(pageNumber - 1)" [disabled]="pageNumber === 1">
+    ⬅ قبلی
+  </button>
   <span class="mx-3">صفحه {{ pageNumber }} از {{ totalPages }}</span>
-  <button class="btn btn-light" (click)="changePage(pageNumber + 1)" [disabled]="pageNumber === totalPages"> ⬅ بعدی </button>
+  <button class="btn btn-light" (click)="changePage(pageNumber + 1)" [disabled]="pageNumber === totalPages">
+    بعدی ➡
+  </button>
 </div>
 
-<!-- پاپ‌آپ افزودن رکورد -->
+<!-- پاپ‌آپ افزودن/ویرایش رکورد -->
 <div class="modal fade show" [ngClass]="{ 'd-block': isPopupVisible }" tabindex="-1" *ngIf="isPopupVisible">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">➕ افزودن {{ modelName }}</h5>
-        <button type="button" class="close" (click)="closePopup()">✖</button>
+        <h5 class="modal-title">
+          {{ editId !== null ? '✏ ویرایش ' + modelName : '➕ افزودن ' + modelName }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closePopup()" aria-label="بستن"></button>
       </div>
       <div class="modal-body">
         <form [formGroup]="dataForm">
           <div class="mb-3" *ngFor="let field of formMetadata">
             <label class="form-label">{{ field.displayName }}</label>
-          
-            <select *ngIf="field.controlType === 'select'" 
-            class="form-control" 
+
+            <!-- فیلد انتخابی -->
+            <select *ngIf="field.controlType === 'select'"
+            class="form-control"
             [formControlName]="field.name">
       <option value="">-- انتخاب کنید --</option>
-      <option *ngFor="let option of selectOptions[field.name]" 
-              [value]="option.id">
-        {{ option.name || option.title || option.value }}
-      </option>
+      <ng-container *ngFor="let option of selectOptions[field.name] | keyvalue">
+        <option [value]="option.value.id">
+          {{ option.value.name || option.value.title || option.value.value }}
+        </option>
+      </ng-container>
     </select>
-      
-      <div *ngIf="field.controlType === 'select' && (!selectOptions[field.name] || selectOptions[field.name]?.length === 0)"
-           class="text-muted">
-        در حال بارگذاری گزینه‌ها...
-      </div>
-          
-            <input *ngIf="!field.controlType && field.inputType === 'number'" type="number" class="form-control" [formControlName]="field.name" />
-          
-            <input *ngIf="!field.controlType && field.inputType === 'boolean'" type="checkbox" [formControlName]="field.name" />
-          
-            <input *ngIf="!field.controlType && field.inputType === 'text'" type="text" class="form-control" [formControlName]="field.name" 
-                   [attr.minlength]="field.minLength" [attr.maxlength]="field.maxLength" [required]="field.required ?? false" />
+
+            <div *ngIf="field.controlType === 'select' && (!selectOptions[field.name] || selectOptions[field.name]?.length === 0)"
+                 class="form-text">
+              در حال بارگذاری گزینه‌ها...
+            </div>
+
+            <!-- فیلد عددی -->
+            <input *ngIf="!field.controlType && field.inputType === 'number'"
+                   type="number"
+                   class="form-control"
+                   [formControlName]="field.name" />
+
+            <!-- فیلد بولی -->
+            <div *ngIf="!field.controlType && field.inputType === 'boolean'" class="form-check mt-2">
+              <input type="checkbox"
+                     class="form-check-input"
+                     [formControlName]="field.name" />
+              <label class="form-check-label">فعال/غیرفعال</label>
+            </div>
+
+            <!-- فیلد متنی -->
+            <input *ngIf="!field.controlType && field.inputType === 'text'"
+                   type="text"
+                   class="form-control"
+                   [formControlName]="field.name"
+                   [attr.minlength]="field.minLength"
+                   [attr.maxlength]="field.maxLength"
+                   [required]="field.required ?? false" />
           </div>
         </form>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" (click)="closePopup()">❌ انصراف</button>
         <button class="btn btn-success" (click)="saveRecord()">
-        {{ editId !== null ? '✅ ویرایش' : '✅ ذخیره' }}
-      </button>
+          {{ editId !== null ? '✅ بروزرسانی' : '✅ ذخیره' }}
+        </button>
       </div>
     </div>
   </div>
- 
 </div>

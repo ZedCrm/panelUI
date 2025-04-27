@@ -1,34 +1,35 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map } from 'rxjs';
+import { Observable, catchError, map, of } from 'rxjs';
+import { SelectDataService } from './select-data.service';
 
 export interface MetadataField {
   name: string;
   type: string;
   label?: string;
-  controlType?: string; // این خط باید اضافه بشه
-  selectSource?: string; // برای فیلدهای select
+  controlType?: string;
+  selectSource?: string;
   required?: boolean;
   minLength?: number;
   inputType: 'text' | 'number' | 'boolean';
   maxLength?: number;
-  options?: any[];     
-  displayName? : string ;  
-  // هر چیز دیگه‌ای که لازمه...
+  options?: any[];
+  displayName?: string;
 }
 
 @Injectable({
   providedIn: 'root',
- 
-  
 })
 export class GetModalService {
   private apiUrl = '/api/Metadata/GetModelMetadata';
 
-  constructor(private http: HttpClient, private fb: FormBuilder) {}
+  constructor(
+    private http: HttpClient,
+    private fb: FormBuilder,
+    private selectDataService: SelectDataService
+  ) {}
 
-  /** دریافت متادیتا از API */
   getMetadata(modelName: string): Observable<MetadataField[]> {
     return this.http.get<{ [key: string]: MetadataField[] }>(`${this.apiUrl}/${modelName}`).pipe(
       map(response => {
@@ -40,37 +41,63 @@ export class GetModalService {
       }),
       catchError(err => {
         console.error('Error fetching metadata:', err);
-        throw err;
+        return of([]); // جلوگیری از قطع شدن برنامه
       })
     );
   }
 
-  /** ساخت فرم بر اساس متادیتا */
+  /** ساخت فرم براساس متادیتا */
   createForm(metadata: MetadataField[]): FormGroup {
-    let formGroup: { [key: string]: FormControl } = {};
+    const formGroup: { [key: string]: FormControl } = {};
 
     metadata.forEach(field => {
       const validators = this.createValidators(field);
-      formGroup[field.name] = new FormControl('', validators);
+      let defaultValue: any = '';
+
+      if (field.controlType === 'select') {
+        defaultValue = null;
+      } else if (field.inputType === 'boolean') {
+        defaultValue = false;
+      } else if (field.inputType === 'number') {
+        defaultValue = null;
+      }
+
+      formGroup[field.name] = new FormControl(defaultValue, validators);
     });
 
     return this.fb.group(formGroup);
   }
 
-  /** ایجاد ولیدیشن‌ها بر اساس متادیتا */
+  /** ساخت ولیداتورهای فرم */
   private createValidators(field: MetadataField): ValidatorFn[] {
-    const validators = [];
+    const validators: ValidatorFn[] = [];
 
     if (field.required) {
       validators.push(Validators.required);
     }
-    if (field.maxLength) {
-      validators.push(Validators.maxLength(field.maxLength));
-    }
     if (field.minLength) {
       validators.push(Validators.minLength(field.minLength));
     }
+    if (field.maxLength) {
+      validators.push(Validators.maxLength(field.maxLength));
+    }
 
     return validators;
+  }
+
+  /** بارگذاری آپشن‌های Select */
+  loadSelectOptions(metadata: MetadataField[]): void {
+    metadata.forEach(field => {
+      if (field.controlType === 'select' && field.selectSource) {
+        this.selectDataService.getSelectOptions(field.selectSource).subscribe({
+          next: options => {
+            field.options = options;
+          },
+          error: err => {
+            console.error(`خطا در بارگذاری آپشن‌های ${field.name}:`, err);
+          }
+        });
+      }
+    });
   }
 }
