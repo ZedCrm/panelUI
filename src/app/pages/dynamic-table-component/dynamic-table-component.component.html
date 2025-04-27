@@ -70,10 +70,20 @@
           <div class="mb-3" *ngFor="let field of formMetadata">
             <label class="form-label">{{ field.displayName }}</label>
           
-            <select *ngIf="field.controlType === 'select'" class="form-control" [formControlName]="field.name">
-              <option value="">-- انتخاب کنید --</option>
-              <option *ngFor="let option of selectOptions[field.name]" [value]="option.id">{{ option.name }}</option>
-            </select>
+            <select *ngIf="field.controlType === 'select'" 
+            class="form-control" 
+            [formControlName]="field.name">
+      <option value="">-- انتخاب کنید --</option>
+      <option *ngFor="let option of selectOptions[field.name]" 
+              [value]="option.id">
+        {{ option.name || option.title || option.value }}
+      </option>
+    </select>
+      
+      <div *ngIf="field.controlType === 'select' && (!selectOptions[field.name] || selectOptions[field.name]?.length === 0)"
+           class="text-muted">
+        در حال بارگذاری گزینه‌ها...
+      </div>
           
             <input *ngIf="!field.controlType && field.inputType === 'number'" type="number" class="form-control" [formControlName]="field.name" />
           
