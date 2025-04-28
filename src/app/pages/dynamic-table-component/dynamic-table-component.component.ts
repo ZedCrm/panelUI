@@ -1,20 +1,28 @@
 import { Component, Injector, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MetadataField } from '../../DTO/MetadataField';
 import { ActivatedRoute } from '@angular/router';
 import { GetModalService } from 'src/app/services/get-modal.service';
 import { ToastMessageComponent } from "../../utilities/toast-message/toast-message.component";
-import { SelectDataService } from 'src/app/services/select-data.service'; // فرض بر این است که سرویس در این مسیر است
+import { SelectDataService } from 'src/app/services/select-data.service'; 
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
+import { FilterPipe } from "../../pipes/filter.pipe";
 
 @Component({
   selector: 'app-dynamic-table',
   standalone: true,
   templateUrl: './dynamic-table-component.component.html',
   styleUrls: ['./dynamic-table-component.component.css'],
-  imports: [CommonModule, ReactiveFormsModule, ToastMessageComponent],
+  imports: [CommonModule, ReactiveFormsModule, ToastMessageComponent, NgxMatSelectSearchModule, MatFormFieldModule,
+    MatSelectModule, MatOptionModule, NgxMatSelectSearchModule, FilterPipe, MatSelectModule ],
 })
 export class DynamicTableComponent implements OnInit {
+  selectOptions: { [key: string]: any[] } = {};
+  searchControl: FormControl = new FormControl(''); 
   
   modelName = '';
   formModelName = '';
@@ -38,7 +46,7 @@ export class DynamicTableComponent implements OnInit {
   tableMetadata: MetadataField[] = [];
 
   dataForm: FormGroup = new FormGroup({});
-  selectOptions: { [key: string]: any[] } = {};
+  
 
 
   isLoading = false;
@@ -99,11 +107,16 @@ export class DynamicTableComponent implements OnInit {
   }
 
   loadSelectOptions(): void {
+    // بارگذاری گزینه‌ها برای فیلدهای select
     this.formMetadata.forEach((field) => {
       if (field.controlType === 'select' && field.selectSource) {
         this.selectDataService.getSelectOptions(field.selectSource).subscribe({
           next: (options) => {
-            this.selectOptions[field.name] = options;
+            const realOptions = options?.result?.data ?? [];
+            this.selectOptions[field.name] = realOptions.map((opt: any) => ({
+              id: opt.id,
+              name: opt.name
+            }));
           },
           error: (err) => {
             console.error(`خطا در لود گزینه‌های ${field.name}`, err);

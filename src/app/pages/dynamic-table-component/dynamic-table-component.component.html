@@ -84,16 +84,32 @@
             <label class="form-label">{{ field.displayName }}</label>
 
             <!-- فیلد انتخابی -->
-            <select *ngIf="field.controlType === 'select'"
-            class="form-control"
+            <select *ngIf="field.controlType === 'select'" 
+            class="form-control" 
             [formControlName]="field.name">
       <option value="">-- انتخاب کنید --</option>
-      <ng-container *ngFor="let option of selectOptions[field.name] | keyvalue">
-        <option [value]="option.value.id">
-          {{ option.value.name || option.value.title || option.value.value }}
+      
+      <!-- نمایش 3 گزینه اول -->
+      <ng-container *ngFor="let option of (selectOptions[field.name] | slice:0:3)">
+        <option [value]="option.id">
+          {{ option.name || option.title || option.value }}
         </option>
       </ng-container>
+    
+      <!-- اگر گزینه‌های بیشتری وجود داشت، نمایش فیلتر جستجو -->
+      <ng-container *ngIf="(selectOptions[field.name]?.length ?? 0) > 3">
+        <ngx-mat-select-search [formControl]="searchControl" placeholder="جستجو..." 
+                               [noEntriesFoundLabel]="'موردی پیدا نشد'">
+        </ngx-mat-select-search>
+    
+        <ng-container *ngFor="let option of selectOptions[field.name] | filter:searchControl.value">
+          <option [value]="option.id">
+            {{ option.name || option.title || option.value }}
+          </option>
+        </ng-container>
+      </ng-container>
     </select>
+    
 
             <div *ngIf="field.controlType === 'select' && (!selectOptions[field.name] || selectOptions[field.name]?.length === 0)"
                  class="form-text">

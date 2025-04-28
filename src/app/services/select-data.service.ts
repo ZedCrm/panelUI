@@ -9,7 +9,7 @@ export class SelectDataService {
   constructor(private http: HttpClient) {}
 
   /** دریافت داده‌ها برای فیلد select */
-  getSelectOptions(url: string): Observable<any[]> {
+  getSelectOptions(url: string): Observable<any> {
     return this.http.get<any[]>(url);
   }
 }
